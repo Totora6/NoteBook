@@ -91,3 +91,61 @@ console.log(person.constructor === Person); //true
 person,constructor === Person.prototype.constructor;
 ```
 `__proto__`绝大部分浏览器会支持该非标准方法访问原型，但是它实际上并不存在于`Person.prototype`中，它实际上来自于`Object.prototype`，它更像是一个getter/setter，当使用`obj.__proto__`时，可以理解成返回了`Object.getPrototypeOf(obj)`。
+### 1.2 作用域和动态作用域
+`作用域`：js使用词法作用域，也就是静态作用域。
+```js
+var value = 1;
+function foo() {
+    console.log(value);
+}
+
+function bar() {
+    var value = 2;
+    foo();
+}
+
+bar(); 
+```
+`静态作用域`：执行foo()函数，从foo函数内部查找是否有局部变量value.如果没有就会根据书写的位置去查找上一层的代码，即value等于1。
+`动态作用域`：执行foo函数，从foo函数内部查找是否有局部变量value，如果没有就从调用函数的作用域即bar函数中寻找value变量，结果是2。
+#### 动态作用域
+bash是动态作用域
+```js
+var value = 1;
+function foo () {
+    ech0 $value;
+}
+function bar () {
+    local value = 2;
+    foo;
+}
+bar;
+```
+思考：
+```js
+var scope = "global scope";
+function checkscope(){
+    var scope = "local scope";
+    fucntion f() {
+        return scope;
+    }
+    return f;
+}
+checkscope(); //global scope
+//错误，应该是打印local scope
+```
+```js
+var scope = "global scope";
+function checkscope() {
+    var scope = "local scope";
+    function f() {
+        return scope;
+    }
+    return f;
+}
+checkscope()(); //local scope
+```
+两段都打印local scope的原因：
+JS采用的是词法作用域，函数的作用域给予函数创建的位置。
+【JS函数的执行用到了作用域链，该作用域链是在函数定义的时候创建的，嵌套函数f()定义在这个作用域链里，其中的变量scope一定是局部变量，不管何时何地执行函数f()，这种绑定在执行f()时依然有效。】
+### 1.3 执行上下文栈
