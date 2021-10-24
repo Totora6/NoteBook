@@ -149,3 +149,69 @@ checkscope()(); //local scope
 JS采用的是词法作用域，函数的作用域给予函数创建的位置。
 【JS函数的执行用到了作用域链，该作用域链是在函数定义的时候创建的，嵌套函数f()定义在这个作用域链里，其中的变量scope一定是局部变量，不管何时何地执行函数f()，这种绑定在执行f()时依然有效。】
 ### 1.3 执行上下文栈
+```js
+//顺序执行
+var foo = function () {
+    console.log('foo1');
+
+}
+foo(); //foo1
+var foo = function () {
+    console.log('foo2');
+
+}
+foo(); //foo2
+```
+```js
+function foo() {
+    console.log('foo1');
+}
+foo();
+function foo() {
+    console.log('foo2');
+}
+foo(); //foo2
+原因：JS引擎不是一行一行地分析和执行程序，而是一段一段地分析执行。当执行一段代码的时候，会进行一个“准备工作（执行上下文execution contexts）”，第一个例子中的变量提升，第二个例子中的函数提升【有点小疑问？】。
+```
+- 可执行代码：`全局代码`、`函数代码`、`eval代码`。
+#### 执行上下文栈
+[Execution context stack, ECS]是用来管理执行上下文为了模拟执行上下文栈的行为。
+```js
+//js要解释执行代码时最先遇到全局代码；
+ECStack = [globalContext];
+
+function fun3() {
+    console.log('fun3');
+}
+
+function fun2() {
+    fun3();
+}
+
+function fun1() {
+    fun2();
+}
+
+fun1();
+//当执行一个函数的时候就会创建一个执行上下文，并且压入执行上下文栈，当函数执行完毕时就会将函数的执行上下文栈中弹出。
+
+// 伪代码
+// fun1()
+ECStack.push(<fun1> functionContext);
+// fun1中竟然调用了fun2，还要创建fun2的执行上下文
+ECStack.push(<fun2> functionContext);
+
+// 擦，fun2还调用了fun3！
+ECStack.push(<fun3> functionContext);
+
+// fun3执行完毕
+ECStack.pop();
+
+// fun2执行完毕
+ECStack.pop();
+
+// fun1执行完毕
+ECStack.pop();
+
+// javascript接着执行下面的代码，但是ECStack底层永远有个globalContext
+```
